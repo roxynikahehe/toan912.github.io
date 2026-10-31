@@ -261,6 +261,28 @@
 
                 <!-- MULTI-QUESTION SECTION (For Category: Đề thi) -->
                 <div id="multiQuestionSection" class="hidden space-y-4">
+                    <!-- Exam PDF Attachment Field -->
+                    <div class="bg-purple-50/60 dark:bg-purple-950/20 p-3.5 rounded-xl border border-purple-200/60 dark:border-purple-800/40">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-purple-900 dark:text-purple-300 mb-1.5">
+                            <i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> File PDF / Đề Thi Đính Kèm (Dành cho toàn bộ đề)
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <label class="flex-grow flex items-center justify-center px-4 py-2 bg-white dark:bg-slate-900 border border-dashed border-purple-300 dark:border-purple-700 rounded-xl cursor-pointer hover:bg-purple-50 dark:hover:bg-slate-800 transition">
+                                <div class="flex items-center space-x-2 text-slate-600 dark:text-slate-300 text-xs font-medium">
+                                    <i class="fa-solid fa-cloud-arrow-up text-purple-500 text-sm"></i>
+                                    <span id="examFileNameDisplay">Tải lên file PDF hoặc file ảnh đề thi...</span>
+                                </div>
+                                <input type="file" id="examFileInput" onchange="handleExamFileSelect(event)" accept="image/*,application/pdf" class="hidden">
+                            </label>
+                            <button type="button" id="removeExamFileBtn" onclick="clearExamFileSelection()" class="hidden px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition text-xs font-semibold" title="Xóa file đề thi">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="examFileBase64">
+                        <input type="hidden" id="examFileName">
+                        <input type="hidden" id="examFileType">
+                    </div>
+
                     <div class="flex items-center justify-between bg-blue-50 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-200/60 dark:border-blue-800/40">
                         <div class="flex items-center gap-3">
                             <label class="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300">Số lượng câu hỏi trong đề:</label>
@@ -590,6 +612,35 @@
             }
         }
 
+        function handleExamFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 8 * 1024 * 1024) {
+                alert('Dung lượng file đề thi vượt quá 8MB. Vui lòng chọn file nhỏ hơn.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('examFileBase64').value = e.target.result;
+                document.getElementById('examFileName').value = file.name;
+                document.getElementById('examFileType').value = file.type;
+                document.getElementById('examFileNameDisplay').innerText = file.name;
+                document.getElementById('removeExamFileBtn').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearExamFileSelection() {
+            document.getElementById('examFileInput').value = '';
+            document.getElementById('examFileBase64').value = '';
+            document.getElementById('examFileName').value = '';
+            document.getElementById('examFileType').value = '';
+            document.getElementById('examFileNameDisplay').innerText = 'Tải lên file PDF hoặc file ảnh đề thi...';
+            document.getElementById('removeExamFileBtn').classList.add('hidden');
+        }
+
         // Render multi-question edit forms
         function renderFormQuestionList() {
             const container = document.getElementById('questionsContainer');
@@ -658,6 +709,7 @@
             document.getElementById('saveBtnText').innerText = 'Lưu bài học';
             currentEditingQuestions = [];
             clearFileSelection();
+            clearExamFileSelection();
             toggleFormCategoryMode();
 
             const modal = document.getElementById('lessonModal');
@@ -687,6 +739,15 @@
 
             if (lesson.category === 'Đề thi') {
                 currentEditingQuestions = lesson.questions ? JSON.parse(JSON.stringify(lesson.questions)) : [];
+                if (lesson.fileData) {
+                    document.getElementById('examFileBase64').value = lesson.fileData;
+                    document.getElementById('examFileName').value = lesson.fileName || 'File đề thi';
+                    document.getElementById('examFileType').value = lesson.fileType || '';
+                    document.getElementById('examFileNameDisplay').innerText = lesson.fileName || 'File đã đính kèm';
+                    document.getElementById('removeExamFileBtn').classList.remove('hidden');
+                } else {
+                    clearExamFileSelection();
+                }
             } else {
                 document.getElementById('lessonContent').value = lesson.content || '';
                 document.getElementById('solutionCasio').value = lesson.solutions ? lesson.solutions.casio : '';
@@ -769,6 +830,9 @@
                     return;
                 }
                 lessonObj.questions = currentEditingQuestions;
+                lessonObj.fileData = document.getElementById('examFileBase64').value || null;
+                lessonObj.fileName = document.getElementById('examFileName').value || null;
+                lessonObj.fileType = document.getElementById('examFileType').value || null;
             } else {
                 const content = document.getElementById('lessonContent').value.trim();
                 if (!content) {
@@ -817,10 +881,30 @@
             const modalBody = document.getElementById('detailModalBody');
             
             if (lesson.category === 'Đề thi') {
-                // Multi-question rendering
+                // Multi-question rendering with Exam PDF download header
+                const examFileBanner = lesson.fileData ? `
+                    <div class="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-red-400 text-xl font-bold">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold">${escapeHtml(lesson.fileName || 'File đề thi gốc PDF')}</h4>
+                                <p class="text-xs text-purple-200">Đề thi đã kèm file tài liệu đầy đủ</p>
+                            </div>
+                        </div>
+                        <a href="${lesson.fileData}" download="${escapeHtml(lesson.fileName || 'de-thi.pdf')}" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow">
+                            <i class="fa-solid fa-download"></i> Tải PDF Đề thi
+                        </a>
+                    </div>
+                ` : '';
+
                 modalBody.innerHTML = `
-                    <div class="space-y-8">
-                        ${lesson.questions.map((q, idx) => renderQuestionCardView(q, idx)).join('')}
+                    <div class="space-y-6">
+                        ${examFileBanner}
+                        <div class="space-y-6">
+                            ${lesson.questions.map((q, idx) => renderQuestionCardView(q, idx)).join('')}
+                        </div>
                     </div>
                 `;
             } else {
