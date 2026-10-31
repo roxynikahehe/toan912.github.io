@@ -1,9 +1,817 @@
-<html>
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Learning Hub - Góc Học Tập Toán Học</title>
 
-<body>
-  <h1>NikaroxyXD</h1>
-  <p>Welcome to my website!</p>
-  
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- MathJax for rendering LaTeX formulas -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                    <i class="fa-solid fa-square-root-variable text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Math Hub</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Kho lưu trữ bài tập & Phương pháp giải Toán</p>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center space-x-3">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Chuyển đổi Chế độ Sáng/Tối">
+                    <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+
+                <!-- Create Lesson Button -->
+                <button onclick="openModal()" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-blue-600/25 transition active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tạo bài học mới</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Search and Filter Bar -->
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
+            <!-- Search Input -->
+            <div class="relative w-full md:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" oninput="renderLessons()" placeholder="Tìm kiếm bài học, công thức, từ khóa..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white transition">
+            </div>
+
+            <!-- Category Filter Tabs -->
+            <div class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
+                <button onclick="setFilter('All')" id="filter-All" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium transition bg-blue-600 text-white shadow-sm">
+                    Tất cả (<span id="count-All">0</span>)
+                </button>
+                <button onclick="setFilter('Đề thi')" id="filter-Đề thi" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    Đề thi (<span id="count-Đề thi">0</span>)
+                </button>
+                <button onclick="setFilter('Phương pháp')" id="filter-Phương pháp" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    Phương pháp giải (<span id="count-Phương pháp">0</span>)
+                </button>
+                <button onclick="setFilter('Lý thuyết')" id="filter-Lý thuyết" class="filter-tab px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    Lý thuyết & Công thức (<span id="count-Lý thuyết">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <!-- Math Formulas Quick Reference Guide banner -->
+        <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-4 sm:p-6 mb-8 relative overflow-hidden shadow-md">
+            <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                <i class="fa-solid fa-infinity"></i>
+            </div>
+            <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-yellow-400"></i> Hướng dẫn nhập công thức Toán LaTeX (MathJax)
+                    </h2>
+                    <p class="text-sm text-blue-200 mt-1">
+                        Sử dụng <code class="bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">$...$</code> cho công thức inline (ví dụ: $E = mc^2$) 
+                        hoặc <code class="bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">$$...$$</code> cho công thức khối dòng riêng biệt.
+                    </p>
+                </div>
+                <button onclick="openLaTeXHelpModal()" class="bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm px-3.5 py-2 rounded-xl backdrop-blur-md transition whitespace-nowrap font-medium border border-white/20">
+                    <i class="fa-solid fa-code mr-1"></i> Bảng tra nhanh LaTeX
+                </button>
+            </div>
+        </div>
+
+        <!-- Lessons Container Grid -->
+        <div id="lessonsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
+            <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 text-3xl mb-4">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300">Không tìm thấy bài học nào</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md">Chưa có nội dung tương ứng với bộ lọc hoặc từ khóa tìm kiếm của bạn. Hãy nhấn "Tạo bài học mới" để bắt đầu lưu trữ kiến thức!</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-6 mt-12 bg-white dark:bg-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400">
+            <p>Math Learning Hub &copy; 2026. Nền tảng ghi chép và chia sẻ kiến thức Toán học tối ưu.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL: Add/Edit Lesson -->
+    <div id="lessonModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full my-8 overflow-hidden transform scale-95 transition-transform duration-200 border border-slate-200 dark:border-slate-700" id="modalContainer">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                    <span>Tạo bài học mới</span>
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="lessonForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="lessonId">
+
+                <!-- Title & Category Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tên bài học / Tiêu đề đề thi <span class="text-red-500">*</span></label>
+                        <input type="text" id="lessonTitle" required placeholder="VD: Tính tích phân hàm ẩn bằng đổi biến" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Phân loại <span class="text-red-500">*</span></label>
+                        <select id="lessonCategory" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition">
+                            <option value="Đề thi">Đề thi</option>
+                            <option value="Phương pháp">Phương pháp giải</option>
+                            <option value="Lý thuyết">Lý thuyết & Công thức</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Main Content / Question text -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                        Nội dung bài học / Nội dung đề bài <span class="text-red-500">*</span> 
+                        <span class="normal-case text-slate-400 font-normal">(Hỗ trợ công thức LaTeX)</span>
+                    </label>
+                    <textarea id="lessonContent" rows="4" required placeholder="Nhập đề bài hoặc lý thuyết... Ví dụ: Cho hàm số $f(x)$ liên tục trên $\mathbb{R}$ thỏa mãn $\int_{0}^{1} f(x) dx = 5$. Tính..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition font-mono"></textarea>
+                </div>
+
+                <!-- Solution / Methodology -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                        Lời giải / Phương pháp giải chi tiết
+                        <span class="normal-case text-slate-400 font-normal">(Hiển thị khi người dùng bấm "Xem lời giải")</span>
+                    </label>
+                    <textarea id="lessonSolution" rows="4" placeholder="Viết từng bước giải thích chi tiết tại đây..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition font-mono"></textarea>
+                </div>
+
+                <!-- File Attachment Section -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">File Đính kèm (Hình ảnh đề bài / PDF)</label>
+                    <div class="flex items-center gap-3">
+                        <label class="flex-grow flex items-center justify-center px-4 py-3 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                            <div class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 text-sm">
+                                <i class="fa-solid fa-cloud-arrow-up text-lg text-blue-500"></i>
+                                <span id="fileNameDisplay">Tải lên hình ảnh hoặc PDF đề bài...</span>
+                            </div>
+                            <input type="file" id="fileInput" onchange="handleFileSelect(event)" accept="image/*,application/pdf" class="hidden">
+                        </label>
+                        <button type="button" id="removeFileBtn" onclick="clearFileSelection()" class="hidden px-3 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition" title="Xóa file đính kèm">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <!-- Hidden input to hold file Base64 string data -->
+                    <input type="hidden" id="fileBase64">
+                    <input type="hidden" id="fileName">
+                    <input type="hidden" id="fileType">
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium text-sm transition">Hủy bỏ</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-md shadow-blue-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span id="saveBtnText">Lưu bài học</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: View Solution & Detail -->
+    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden transform scale-95 transition-transform duration-200 border border-slate-200 dark:border-slate-700">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <div class="flex items-center space-x-2">
+                    <span id="detailBadge" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"></span>
+                    <h3 id="detailTitle" class="text-lg font-bold text-slate-800 dark:text-white"></h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                <!-- Content / Question -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Đề bài / Nội dung</h4>
+                    <div id="detailContent" class="text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 leading-relaxed overflow-x-auto"></div>
+                </div>
+
+                <!-- Attached File Preview -->
+                <div id="detailFileContainer" class="hidden">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">File đính kèm</h4>
+                    <div id="detailFilePreview" class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900"></div>
+                </div>
+
+                <!-- Detailed Solution -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <span>Lời giải & Phương pháp chi tiết</span>
+                    </h4>
+                    <div id="detailSolution" class="text-slate-800 dark:text-slate-200 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-200/60 dark:border-emerald-800/40 leading-relaxed overflow-x-auto"></div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-end bg-slate-50 dark:bg-slate-800/50">
+                <button onclick="closeDetailModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-xl text-sm transition">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LaTeX Quick Help -->
+    <div id="latexHelpModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full my-8 overflow-hidden transform scale-95 transition-transform duration-200 border border-slate-200 dark:border-slate-700">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-square-root-variable text-blue-500"></i> Bảng tra cứu LaTeX thông dụng
+                </h3>
+                <button onclick="closeLaTeXHelpModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-3 max-h-[60vh] overflow-y-auto font-mono text-sm">
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Phân số $\frac{a}{b}$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\frac{a}{b}</code>
+                </div>
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Tích phân $\int_{a}^{b} f(x)dx$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\int_{a}^{b} f(x)dx</code>
+                </div>
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Căn thức $\sqrt[n]{x}$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\sqrt[n]{x}</code>
+                </div>
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Giới hạn $\lim_{x \to \infty}$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\lim_{x \to \infty}</code>
+                </div>
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Tổng $\sum_{i=1}^{n} x_i$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\sum_{i=1}^{n} x_i</code>
+                </div>
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Véc tơ $\vec{ab}$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\vec{ab}</code>
+                </div>
+                <div class="grid grid-cols-2 gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <span class="text-slate-600 dark:text-slate-400">Số thực / Tự nhiên $\mathbb{R}, \mathbb{N}$</span>
+                    <code class="text-blue-600 dark:text-blue-400">\mathbb{R}, \mathbb{N}</code>
+                </div>
+            </div>
+            <div class="px-6 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                <button onclick="closeLaTeXHelpModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-xl text-sm">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Code -->
+    <script>
+        // Sample Data for initial load if LocalStorage is empty
+        const sampleLessons = [
+            {
+                id: 'sample-1',
+                title: 'Tính Tích Phân Hàm Ẩn Bằng Phương Pháp Đổi Biến',
+                category: 'Phương pháp',
+                content: 'Cho hàm số $f(x)$ liên tục trên $\\mathbb{R}$ và thỏa mãn $f(x) + f(1-x) = x^2$. Tính tích phân $I = \\int_{0}^{1} f(x) dx$.',
+                solution: '**Phương pháp giải:**\n\n1. Sử dụng công thức đổi biến $t = 1 - x \\Rightarrow dt = -dx$.\n2. Đổi cận: Với $x = 0 \\Rightarrow t = 1$; với $x = 1 \\Rightarrow t = 0$.\n3. Do đó:\n$$I = \\int_{0}^{1} f(1-t) dt = \\int_{0}^{1} f(1-x) dx$$\n4. Cộng 2 vế của $I$:\n$$2I = \\int_{0}^{1} [f(x) + f(1-x)] dx = \\int_{0}^{1} x^2 dx = \\left. \\frac{x^3}{3} \\right|_{0}^{1} = \\frac{1}{3}$$\n5. Suy ra $I = \\frac{1}{6}$.',
+                fileData: null,
+                fileName: null,
+                fileType: null,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'sample-2',
+                title: 'Đề Thi Thử THPTQG 2026 - Câu Khống Khống Hình Học Không Gian',
+                category: 'Đề thi',
+                content: 'Cho hình chóp $S.ABC$ có đáy $ABC$ là tam giác vuông cân tại $B$, $AB = a$. Cạnh bên $SA \\perp (ABC)$ và $SA = a\\sqrt{2}$. Tính góc giữa đường thẳng $SB$ và mặt phẳng $SAC$.',
+                solution: '**Hướng dẫn chi tiết:**\n\n- Kẻ $BH \\perp AC$ tại $H$. Vì $ABC$ vuông cân tại $B$ nên $H$ là trung điểm $AC$.\n- Vì $SA \\perp (ABC) \\Rightarrow SA \\perp BH$.\n- Suy ra $BH \\perp (SAC)$. Hình chiếu vuông góc của $SB$ lên $(SAC)$ là $SH$.\n- Góc cần tìm là $\\widehat{BSH} = \\varphi$.\n- Ta có $BH = \\frac{a\n\\sqrt{2}}{2}$ và $SB = \\sqrt{SA^2 + AB^2} = \\sqrt{2a^2 + a^2} = a\\sqrt{3}$.\n- Thỏa mãn: $\\sin \\varphi = \\frac{BH}{SB} = \\frac{a\\sqrt{2}/2}{a\\sqrt{3}} = \\frac{\\sqrt{6}}{6} \\Rightarrow \\varphi = \\arcsin\\left(\\frac{\\sqrt{6}}{6}\\right)$.',
+                fileData: null,
+                fileName: null,
+                fileType: null,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'sample-3',
+                title: 'Đạo Hàm Và Tiệm Cận Của Hàm Số Lượng Giác',
+                category: 'Lý thuyết',
+                content: 'Tổng hợp các công thức đạo hàm hàm lượng giác nâng cao:\n\n- $(\\sin u)\' = u\' \\cdot \\cos u$\n- $(\\cos u)\' = -u\' \\cdot \\sin u$\n- $(\\tan u)\' = \\frac{u\'}{\\cos^2 u} = u\'(1 + \\tan^2 u)$\n- $(\\cot u)\' = -\\frac{u\'}{\\sin^2 u} = -u\'(1 + \\cot^2 u)$',
+                solution: '**Ứng dụng trong việc xét tiệm cận:**\n\nĐối với các hàm có chứa $\\tan(x)$ hoặc $\\cot(x)$, cần chú ý điều kiện xác định:\n- $\\tan(x)$ xác định khi $x \\neq \\frac{\\pi}{2} + k\\pi, k \\in \\mathbb{Z}$ (Xuất hiện các đường tiệm cận đứng).\n- $\\cot(x)$ xác định khi $x \\neq k\\pi, k \\in \\mathbb{Z}$.',
+                fileData: null,
+                fileName: null,
+                fileType: null,
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        // Global State Variables
+        let lessons = [];
+        let activeFilter = 'All';
+
+        // Load data on window startup
+        window.onload = function() {
+            // Theme initialization
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Load lessons from LocalStorage
+            const stored = localStorage.getItem('math_lessons_data');
+            if (stored) {
+                try {
+                    lessons = JSON.parse(stored);
+                } catch (e) {
+                    console.error('Error parsing stored lessons, fallback to sample data', e);
+                    lessons = sampleLessons;
+                }
+            } else {
+                lessons = sampleLessons;
+                saveLessonsToStorage();
+            }
+
+            renderLessons();
+        };
+
+        // Theme Toggle Function
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const themeIcon = document.getElementById('themeIcon');
+            if (isDark) {
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Save State to LocalStorage
+        function saveLessonsToStorage() {
+            localStorage.setItem('math_lessons_data', JSON.stringify(lessons));
+        }
+
+        // Filter Handlers
+        function setFilter(category) {
+            activeFilter = category;
+            
+            // Update UI tab styles
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                tab.classList.add('text-slate-600', 'dark:text-slate-300');
+            });
+            
+            const activeTab = document.getElementById(`filter-${category}`);
+            if(activeTab) {
+                activeTab.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+                activeTab.classList.remove('text-slate-600', 'dark:text-slate-300');
+            }
+
+            renderLessons();
+        }
+
+        // Update Category Counts in Filter Tabs
+        function updateCounts() {
+            document.getElementById('count-All').innerText = lessons.length;
+            document.getElementById('count-Đề thi').innerText = lessons.filter(l => l.category === 'Đề thi').length;
+            document.getElementById('count-Phương pháp').innerText = lessons.filter(l => l.category === 'Phương pháp').length;
+            document.getElementById('count-Lý thuyết').innerText = lessons.filter(l => l.category === 'Lý thuyết').length;
+        }
+
+        // Render Lessons Cards Grid
+        function renderLessons() {
+            updateCounts();
+            const grid = document.getElementById('lessonsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            // Filter logic
+            const filtered = lessons.filter(lesson => {
+                const matchesFilter = activeFilter === 'All' || lesson.category === activeFilter;
+                const matchesSearch = lesson.title.toLowerCase().includes(searchKeyword) || 
+                                      lesson.content.toLowerCase().includes(searchKeyword) ||
+                                      (lesson.solution && lesson.solution.toLowerCase().includes(searchKeyword));
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            // Render Card HTML
+            grid.innerHTML = filtered.map(lesson => {
+                // Category badge colors
+                let badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+                if (lesson.category === 'Đề thi') badgeClass = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300';
+                if (lesson.category === 'Lý thuyết') badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+
+                const formattedDate = new Date(lesson.createdAt).toLocaleDateString('vi-VN');
+
+                return `
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/70 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                        <div>
+                            <!-- Header Info -->
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-1 rounded-lg text-xs font-semibold ${badgeClass}">
+                                    ${lesson.category}
+                                </span>
+                                <span class="text-xs text-slate-400 font-medium">
+                                    <i class="fa-regular fa-clock mr-1"></i>${formattedDate}
+                                </span>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-2 leading-snug">
+                                ${escapeHtml(lesson.title)}
+                            </h3>
+
+                            <!-- Preview Content -->
+                            <div class="text-sm text-slate-600 dark:text-slate-300 mb-4 line-clamp-4 leading-relaxed font-mono bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                ${escapeHtml(lesson.content)}
+                            </div>
+                        </div>
+
+                        <!-- Card Footer & Actions -->
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between mt-2">
+                            <!-- File Icon Badge if exists -->
+                            <div class="flex items-center text-xs text-slate-400">
+                                ${lesson.fileData ? `<span class="flex items-center text-blue-500 font-medium bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-md"><i class="fa-solid fa-paperclip mr-1"></i> Có file</span>` : ''}
+                            </div>
+
+                            <div class="flex items-center space-x-1">
+                                <button onclick="openDetailModal('${lesson.id}')" class="px-3 py-1.5 text-xs font-semibold bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-lg transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-eye"></i> Xem bài
+                                </button>
+                                <button onclick="openEditModal('${lesson.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Chỉnh sửa">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteLesson('${lesson.id}')" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition" title="Xóa bài học">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Trigger MathJax re-render for formulas inside cards
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        }
+
+        // Modal Open/Close Controls
+        function openModal() {
+            document.getElementById('lessonForm').reset();
+            document.getElementById('lessonId').value = '';
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Tạo bài học mới</span>';
+            document.getElementById('saveBtnText').innerText = 'Lưu bài học';
+            clearFileSelection();
+
+            const modal = document.getElementById('lessonModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modalContainer').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('lessonModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('modalContainer').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function openEditModal(id) {
+            const lesson = lessons.find(l => l.id === id);
+            if (!lesson) return;
+
+            document.getElementById('lessonId').value = lesson.id;
+            document.getElementById('lessonTitle').value = lesson.title;
+            document.getElementById('lessonCategory').value = lesson.category;
+            document.getElementById('lessonContent').value = lesson.content;
+            document.getElementById('lessonSolution').value = lesson.solution || '';
+            
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Chỉnh sửa bài học</span>';
+            document.getElementById('saveBtnText').innerText = 'Cập nhật';
+
+            // Handle file attached
+            if (lesson.fileData) {
+                document.getElementById('fileBase64').value = lesson.fileData;
+                document.getElementById('fileName').value = lesson.fileName || 'File đính kèm';
+                document.getElementById('fileType').value = lesson.fileType || '';
+                document.getElementById('fileNameDisplay').innerText = lesson.fileName || 'File đã đính kèm';
+                document.getElementById('removeFileBtn').classList.remove('hidden');
+            } else {
+                clearFileSelection();
+            }
+
+            const modal = document.getElementById('lessonModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modalContainer').classList.remove('scale-95');
+            }, 10);
+        }
+
+        // File Upload Processing (Converts File to Data URL / Base64 for LocalStorage)
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Dung lượng file vượt quá 5MB. Vui lòng chọn file nhỏ hơn.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('fileBase64').value = e.target.result;
+                document.getElementById('fileName').value = file.name;
+                document.getElementById('fileType').value = file.type;
+                document.getElementById('fileNameDisplay').innerText = file.name;
+                document.getElementById('removeFileBtn').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFileSelection() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileBase64').value = '';
+            document.getElementById('fileName').value = '';
+            document.getElementById('fileType').value = '';
+            document.getElementById('fileNameDisplay').innerText = 'Tải lên hình ảnh hoặc PDF đề bài...';
+            document.getElementById('removeFileBtn').classList.add('hidden');
+        }
+
+        // Handle Add/Edit Form Submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('lessonId').value;
+            const title = document.getElementById('lessonTitle').value.trim();
+            const category = document.getElementById('lessonCategory').value;
+            const content = document.getElementById('lessonContent').value.trim();
+            const solution = document.getElementById('lessonSolution').value.trim();
+            const fileData = document.getElementById('fileBase64').value || null;
+            const fileName = document.getElementById('fileName').value || null;
+            const fileType = document.getElementById('fileType').value || null;
+
+            if (!title || !content) return;
+
+            if (id) {
+                // Update existing
+                const index = lessons.findIndex(l => l.id === id);
+                if (index !== -1) {
+                    lessons[index] = {
+                        ...lessons[index],
+                        title,
+                        category,
+                        content,
+                        solution,
+                        fileData,
+                        fileName,
+                        fileType,
+                        updatedAt: new Date().toISOString()
+                    };
+                }
+            } else {
+                // Create new
+                const newLesson = {
+                    id: 'lesson-' + Date.now(),
+                    title,
+                    category,
+                    content,
+                    solution,
+                    fileData,
+                    fileName,
+                    fileType,
+                    createdAt: new Date().toISOString()
+                };
+                lessons.unshift(newLesson);
+            }
+
+            saveLessonsToStorage();
+            renderLessons();
+            closeModal();
+        }
+
+        // Delete Lesson
+        function deleteLesson(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa bài học này không?')) {
+                lessons = lessons.filter(l => l.id !== id);
+                saveLessonsToStorage();
+                renderLessons();
+            }
+        }
+
+        // Open Detailed View Modal
+        function openDetailModal(id) {
+            const lesson = lessons.find(l => l.id === id);
+            if (!lesson) return;
+
+            document.getElementById('detailTitle').innerText = lesson.title;
+            document.getElementById('detailBadge').innerText = lesson.category;
+            
+            // Format Math/LaTeX in content
+            document.getElementById('detailContent').innerHTML = formatTextWithMath(lesson.content);
+            
+            // Format Solution
+            const solutionContainer = document.getElementById('detailSolution');
+            if (lesson.solution) {
+                solutionContainer.innerHTML = formatTextWithMath(lesson.solution);
+            } else {
+                solutionContainer.innerHTML = '<span class="text-slate-400 italic">Chưa có lời giải chi tiết cho bài học này.</span>';
+            }
+
+            // Attached file preview
+            const fileContainer = document.getElementById('detailFileContainer');
+            const filePreview = document.getElementById('detailFilePreview');
+
+            if (lesson.fileData) {
+                fileContainer.classList.remove('hidden');
+                if (lesson.fileType && lesson.fileType.startsWith('image/')) {
+                    filePreview.innerHTML = `<img src="${lesson.fileData}" alt="Đính kèm" class="max-h-96 w-auto mx-auto rounded-lg shadow-sm">`;
+                } else if (lesson.fileType === 'application/pdf') {
+                    filePreview.innerHTML = `
+                        <div class="p-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-file-pdf text-red-500 text-3xl"></i>
+                                <div>
+                                    <p class="font-medium text-sm text-slate-800 dark:text-slate-200">${escapeHtml(lesson.fileName)}</p>
+                                    <p class="text-xs text-slate-400">Tài liệu PDF</p>
+                                </div>
+                            </div>
+                            <a href="${lesson.fileData}" download="${lesson.fileName}" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1">
+                                <i class="fa-solid fa-download"></i> Tải về
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    filePreview.innerHTML = `
+                        <div class="p-4 flex items-center justify-between">
+                            <span class="text-sm text-slate-600 dark:text-slate-300 font-medium">${escapeHtml(lesson.fileName)}</span>
+                            <a href="${lesson.fileData}" download="${lesson.fileName}" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold">Tải xuống</a>
+                        </div>
+                    `;
+                }
+            } else {
+                fileContainer.classList.add('hidden');
+                filePreview.innerHTML = '';
+            }
+
+            const modal = document.getElementById('detailModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+
+            // Trigger MathJax render for Modal content
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Help Modal Controls
+        function openLaTeXHelpModal() {
+            const modal = document.getElementById('latexHelpModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        }
+
+        function closeLaTeXHelpModal() {
+            const modal = document.getElementById('latexHelpModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Utility: Convert text linebreaks to <br> while keeping HTML safe
+        function formatTextWithMath(text) {
+            if (!text) return '';
+            const escaped = escapeHtml(text);
+            return escaped.replace(/\n/g, '<br>');
+        }
+
+        // Utility: HTML Escape guard
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
 </body>
-
 </html>
