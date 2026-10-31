@@ -194,55 +194,87 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tên bài học / Tiêu đề đề thi <span class="text-red-500">*</span></label>
-                        <input type="text" id="lessonTitle" required placeholder="VD: Tính tích phân hàm ẩn bằng đổi biến" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition">
+                        <input type="text" id="lessonTitle" required placeholder="VD: Đề thi thử THPTQG Toán 2026 - Đề số 1" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Phân loại <span class="text-red-500">*</span></label>
-                        <select id="lessonCategory" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition">
-                            <option value="Đề thi">Đề thi</option>
+                        <select id="lessonCategory" onchange="toggleFormCategoryMode()" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition">
                             <option value="Phương pháp">Phương pháp giải</option>
+                            <option value="Đề thi">Đề thi (Nhiều câu hỏi)</option>
                             <option value="Lý thuyết">Lý thuyết & Công thức</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Main Content / Question text -->
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                        Nội dung bài học / Nội dung đề bài <span class="text-red-500">*</span> 
-                        <span class="normal-case text-slate-400 font-normal">(Hỗ trợ công thức LaTeX)</span>
-                    </label>
-                    <textarea id="lessonContent" rows="4" required placeholder="Nhập đề bài hoặc lý thuyết... Ví dụ: Cho hàm số $f(x)$ liên tục trên $\mathbb{R}$ thỏa mãn $\int_{0}^{1} f(x) dx = 5$. Tính..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition font-mono"></textarea>
-                </div>
-
-                <!-- Solution / Methodology -->
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                        Lời giải / Phương pháp giải chi tiết
-                        <span class="normal-case text-slate-400 font-normal">(Hiển thị khi người dùng bấm "Xem lời giải")</span>
-                    </label>
-                    <textarea id="lessonSolution" rows="4" placeholder="Viết từng bước giải thích chi tiết tại đây..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition font-mono"></textarea>
-                </div>
-
-                <!-- File Attachment Section -->
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">File Đính kèm (Hình ảnh đề bài / PDF)</label>
-                    <div class="flex items-center gap-3">
-                        <label class="flex-grow flex items-center justify-center px-4 py-3 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition">
-                            <div class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 text-sm">
-                                <i class="fa-solid fa-cloud-arrow-up text-lg text-blue-500"></i>
-                                <span id="fileNameDisplay">Tải lên hình ảnh hoặc PDF đề bài...</span>
-                            </div>
-                            <input type="file" id="fileInput" onchange="handleFileSelect(event)" accept="image/*,application/pdf" class="hidden">
+                <!-- SINGLE QUESTION FIELDS (For Phương pháp & Lý thuyết) -->
+                <div id="singleQuestionSection" class="space-y-4">
+                    <!-- Main Content / Question text -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                            Nội dung bài học / Nội dung câu hỏi <span class="text-red-500">*</span> 
+                            <span class="normal-case text-slate-400 font-normal">(Hỗ trợ công thức LaTeX)</span>
                         </label>
-                        <button type="button" id="removeFileBtn" onclick="clearFileSelection()" class="hidden px-3 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition" title="Xóa file đính kèm">
-                            <i class="fa-solid fa-trash-can"></i>
+                        <textarea id="lessonContent" rows="3" placeholder="Cho hàm số $f(x)$ liên tục trên $\mathbb{R}$..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white text-sm transition font-mono"></textarea>
+                    </div>
+
+                    <!-- Single Question File Attachment -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">File/Hình ảnh Đính kèm</label>
+                        <div class="flex items-center gap-3">
+                            <label class="flex-grow flex items-center justify-center px-4 py-2.5 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                                <div class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 text-sm">
+                                    <i class="fa-solid fa-cloud-arrow-up text-lg text-blue-500"></i>
+                                    <span id="fileNameDisplay">Tải lên hình ảnh hoặc PDF...</span>
+                                </div>
+                                <input type="file" id="fileInput" onchange="handleFileSelect(event)" accept="image/*,application/pdf" class="hidden">
+                            </label>
+                            <button type="button" id="removeFileBtn" onclick="clearFileSelection()" class="hidden px-3 py-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition" title="Xóa file đính kèm">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="fileBase64">
+                        <input type="hidden" id="fileName">
+                        <input type="hidden" id="fileType">
+                    </div>
+
+                    <!-- 3 Solution Methods Input for Single Question -->
+                    <div class="border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                            <i class="fa-solid fa-layer-group text-blue-500 mr-1"></i> Các phương pháp giải bài
+                        </label>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1"><i class="fa-solid fa-calculator mr-1"></i> 1. Bấm CASIO nhanh</label>
+                                <textarea id="solutionCasio" rows="2" placeholder="Các bước bấm máy CASIO fx-580VNX / fx-880BTG..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none dark:text-white text-xs transition font-mono"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1"><i class="fa-solid fa-bolt mr-1"></i> 2. Công thức tính nhanh</label>
+                                <textarea id="solutionShortcut" rows="2" placeholder="Công thức tính nhanh, giải mẹo trắc nghiệm..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white text-xs transition font-mono"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1"><i class="fa-solid fa-graduation-cap mr-1"></i> 3. Giải theo bản chất (Tự luận)</label>
+                                <textarea id="solutionProof" rows="2" placeholder="Lời giải chi tiết tự luận, bản chất toán học..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:text-white text-xs transition font-mono"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MULTI-QUESTION SECTION (For Category: Đề thi) -->
+                <div id="multiQuestionSection" class="hidden space-y-4">
+                    <div class="flex items-center justify-between bg-blue-50 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-200/60 dark:border-blue-800/40">
+                        <div class="flex items-center gap-3">
+                            <label class="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300">Số lượng câu hỏi trong đề:</label>
+                            <input type="number" id="questionCountInput" min="1" max="50" value="2" onchange="adjustQuestionCount()" class="w-20 px-3 py-1.5 bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-700 rounded-lg text-sm font-bold text-center focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <button type="button" onclick="addQuestionItem()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Thêm câu hỏi
                         </button>
                     </div>
-                    <!-- Hidden input to hold file Base64 string data -->
-                    <input type="hidden" id="fileBase64">
-                    <input type="hidden" id="fileName">
-                    <input type="hidden" id="fileType">
+
+                    <!-- Container for question list items -->
+                    <div id="questionsContainer" class="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                        <!-- Dynamically populated via JS -->
+                    </div>
                 </div>
 
                 <!-- Modal Actions -->
@@ -259,7 +291,7 @@
 
     <!-- MODAL: View Solution & Detail -->
     <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden transform scale-95 transition-transform duration-200 border border-slate-200 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full my-8 overflow-hidden transform scale-95 transition-transform duration-200 border border-slate-200 dark:border-slate-700">
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                 <div class="flex items-center space-x-2">
@@ -271,32 +303,14 @@
                 </button>
             </div>
             
-            <!-- Modal Body -->
-            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                <!-- Content / Question -->
-                <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Đề bài / Nội dung</h4>
-                    <div id="detailContent" class="text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 leading-relaxed overflow-x-auto"></div>
-                </div>
-
-                <!-- Attached File Preview -->
-                <div id="detailFileContainer" class="hidden">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">File đính kèm</h4>
-                    <div id="detailFilePreview" class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900"></div>
-                </div>
-
-                <!-- Detailed Solution -->
-                <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-check-circle"></i>
-                        <span>Lời giải & Phương pháp chi tiết</span>
-                    </h4>
-                    <div id="detailSolution" class="text-slate-800 dark:text-slate-200 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-200/60 dark:border-emerald-800/40 leading-relaxed overflow-x-auto"></div>
-                </div>
+            <!-- Modal Body Container -->
+            <div id="detailModalBody" class="p-6 space-y-6 max-h-[78vh] overflow-y-auto">
+                <!-- Content dynamically populated via JS -->
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-end bg-slate-50 dark:bg-slate-800/50">
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <div id="detailFooterNav" class="flex items-center gap-2"></div>
                 <button onclick="closeDetailModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-xl text-sm transition">Đóng</button>
             </div>
         </div>
@@ -358,7 +372,11 @@
                 title: 'Tính Tích Phân Hàm Ẩn Bằng Phương Pháp Đổi Biến',
                 category: 'Phương pháp',
                 content: 'Cho hàm số $f(x)$ liên tục trên $\\mathbb{R}$ và thỏa mãn $f(x) + f(1-x) = x^2$. Tính tích phân $I = \\int_{0}^{1} f(x) dx$.',
-                solution: '**Phương pháp giải:**\n\n1. Sử dụng công thức đổi biến $t = 1 - x \\Rightarrow dt = -dx$.\n2. Đổi cận: Với $x = 0 \\Rightarrow t = 1$; với $x = 1 \\Rightarrow t = 0$.\n3. Do đó:\n$$I = \\int_{0}^{1} f(1-t) dt = \\int_{0}^{1} f(1-x) dx$$\n4. Cộng 2 vế của $I$:\n$$2I = \\int_{0}^{1} [f(x) + f(1-x)] dx = \\int_{0}^{1} x^2 dx = \\left. \\frac{x^3}{3} \\right|_{0}^{1} = \\frac{1}{3}$$\n5. Suy ra $I = \\frac{1}{6}$.',
+                solutions: {
+                    casio: '1. Nhập biểu thức chọn đại diện hàm số thỏa mãn $f(x) = \\frac{x^2}{2}$.\n2. Nhập vào máy tính CASIO fx-580VNX: bấm `∫(X^2 / 2, 0, 1)`.\n3. Bấm `=` kết quả ra $\\frac{1}{6} \\approx 0.1666667$.',
+                    shortcut: 'Dùng công thức tích phân đối xứng:\nNếu $f(x) + f(a+b-x) = g(x)$ thì $\\int_{a}^{b} f(x)dx = \\frac{1}{2} \\int_{a}^{b} g(x)dx$.\nÁp dụng: $I = \\frac{1}{2} \\int_{0}^{1} x^2 dx = \\frac{1}{2} \\cdot \\frac{1}{3} = \\frac{1}{6}$.',
+                    proof: '**Lời giải tự luận chi tiết:**\n\n1. Đặt $t = 1 - x \\Rightarrow dt = -dx$.\n2. Đổi cận: $x=0 \\Rightarrow t=1$; $x=1 \\Rightarrow t=0$.\n3. Ta có: $I = \\int_{0}^{1} f(1-t)dt = \\int_{0}^{1} f(1-x)dx$.\n4. Cộng 2 vế:\n$$2I = \\int_{0}^{1} [f(x) + f(1-x)]dx = \\int_{0}^{1} x^2 dx = \\frac{1}{3} \\Rightarrow I = \\frac{1}{6}$$.'
+                },
                 fileData: null,
                 fileName: null,
                 fileType: null,
@@ -366,24 +384,34 @@
             },
             {
                 id: 'sample-2',
-                title: 'Đề Thi Thử THPTQG 2026 - Câu Khống Khống Hình Học Không Gian',
+                title: 'Đề Thi Thử THPTQG 2026 - Bộ 2 Câu Hình Học & Tích Phân',
                 category: 'Đề thi',
-                content: 'Cho hình chóp $S.ABC$ có đáy $ABC$ là tam giác vuông cân tại $B$, $AB = a$. Cạnh bên $SA \\perp (ABC)$ và $SA = a\\sqrt{2}$. Tính góc giữa đường thẳng $SB$ và mặt phẳng $SAC$.',
-                solution: '**Hướng dẫn chi tiết:**\n\n- Kẻ $BH \\perp AC$ tại $H$. Vì $ABC$ vuông cân tại $B$ nên $H$ là trung điểm $AC$.\n- Vì $SA \\perp (ABC) \\Rightarrow SA \\perp BH$.\n- Suy ra $BH \\perp (SAC)$. Hình chiếu vuông góc của $SB$ lên $(SAC)$ là $SH$.\n- Góc cần tìm là $\\widehat{BSH} = \\varphi$.\n- Ta có $BH = \\frac{a\n\\sqrt{2}}{2}$ và $SB = \\sqrt{SA^2 + AB^2} = \\sqrt{2a^2 + a^2} = a\\sqrt{3}$.\n- Thỏa mãn: $\\sin \\varphi = \\frac{BH}{SB} = \\frac{a\\sqrt{2}/2}{a\\sqrt{3}} = \\frac{\\sqrt{6}}{6} \\Rightarrow \\varphi = \\arcsin\\left(\\frac{\\sqrt{6}}{6}\\right)$.',
-                fileData: null,
-                fileName: null,
-                fileType: null,
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: 'sample-3',
-                title: 'Đạo Hàm Và Tiệm Cận Của Hàm Số Lượng Giác',
-                category: 'Lý thuyết',
-                content: 'Tổng hợp các công thức đạo hàm hàm lượng giác nâng cao:\n\n- $(\\sin u)\' = u\' \\cdot \\cos u$\n- $(\\cos u)\' = -u\' \\cdot \\sin u$\n- $(\\tan u)\' = \\frac{u\'}{\\cos^2 u} = u\'(1 + \\tan^2 u)$\n- $(\\cot u)\' = -\\frac{u\'}{\\sin^2 u} = -u\'(1 + \\cot^2 u)$',
-                solution: '**Ứng dụng trong việc xét tiệm cận:**\n\nĐối với các hàm có chứa $\\tan(x)$ hoặc $\\cot(x)$, cần chú ý điều kiện xác định:\n- $\\tan(x)$ xác định khi $x \\neq \\frac{\\pi}{2} + k\\pi, k \\in \\mathbb{Z}$ (Xuất hiện các đường tiệm cận đứng).\n- $\\cot(x)$ xác định khi $x \\neq k\\pi, k \\in \\mathbb{Z}$.',
-                fileData: null,
-                fileName: null,
-                fileType: null,
+                questions: [
+                    {
+                        id: 'q1',
+                        content: 'Câu 1: Cho hình chóp $S.ABC$ có $ABC$ vuông cân tại $B$, $AB=a$. $SA \\perp (ABC)$ và $SA=a\\sqrt{2}$. Tính góc $\\varphi$ giữa $SB$ và $(SAC)$.',
+                        fileData: null,
+                        fileName: null,
+                        fileType: null,
+                        solutions: {
+                            casio: 'Gắn tọa độ Oxyz:\n- Chọn $A(0,0,0)$, $B(a,0,0)$, $C(0,a,0)$, $S(0,0,a\\sqrt{2})$.\n- Dùng tính năng Véc-tơ trên FX-580VNX (MENU 5): Tính góc giữa véc-tơ chỉ phương $\\vec{SB}$ và VTPT $\\vec{n}_{(SAC)}$.\n- Bấm `sin(phi) = |cos(véc-tơ)|` ra kết quả $\\sin \\varphi = \\frac{\\sqrt{6}}{6}$.',
+                            shortcut: 'Công thức góc cạnh nghiêng:\n$\\sin \\varphi = \\frac{d(B, (SAC))}{SB} = \\frac{BH}{SB} = \\frac{\\frac{a\\sqrt{2}}{2}}{a\\sqrt{3}} = \\frac{\\sqrt{6}}{6}$.',
+                            proof: '1. Kẻ $BH \\perp AC$ tại $H$. Vì $\\Delta ABC$ vuông cân nên $H$ là trung điểm $AC$.\n2. Do $SA \\perp (ABC) \\Rightarrow SA \\perp BH \\Rightarrow BH \\perp (SAC)$.\n3. Góc giữa $SB$ và $(SAC)$ là $\\widehat{BSH}$.\n4. Tính $BH = \\frac{a\\sqrt{2}}{2}$, $SB = a\\sqrt{3} \\Rightarrow \\sin \\widehat{BSH} = \\frac{\\sqrt{6}}{6}$.'
+                        }
+                    },
+                    {
+                        id: 'q2',
+                        content: 'Câu 2: Cho $\\int_{1}^{2} \\frac{x dx}{(x+1)^2} = a + b \\ln 2 + c \\ln 3$ với $a,b,c \\in \\mathbb{Q}$. Tính $S = a + b + c$.',
+                        fileData: null,
+                        fileName: null,
+                        fileType: null,
+                        solutions: {
+                            casio: 'Bấm tích phân $I = \\int_{1}^{2} \\frac{x}{(x+1)^2} dx \\rightarrow A$.\nDùng tính năng TABLE (MENU 8) để giải hệ phương trình logarit tìm $a, b, c$.',
+                            shortcut: 'Tách phân số: $\\frac{x}{(x+1)^2} = \\frac{1}{x+1} - \\frac{1}{(x+1)^2}$. lấy nguyên hàm thu được ngay kết quả.',
+                            proof: '$\\int_{1}^{2} \\left( \\frac{1}{x+1} - \\frac{1}{(x+1)^2} \\right) dx = \\left. \\left( \\ln|x+1| + \\frac{1}{x+1} \\right) \\right|_{1}^{2} = \\ln 3 - \\ln 2 - \\frac{1}{6}$.\nSuy ra $a = -\\frac{1}{6}, b = -1, c = 1 \\Rightarrow S = -\\frac{1}{6}$.'
+                        }
+                    }
+                ],
                 createdAt: new Date().toISOString()
             }
         ];
@@ -391,10 +419,10 @@
         // Global State Variables
         let lessons = [];
         let activeFilter = 'All';
+        let currentEditingQuestions = []; // Stores temporal questions array during edit
 
         // Load data on window startup
         window.onload = function() {
-            // Theme initialization
             if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
                 document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
@@ -402,13 +430,11 @@
                 document.documentElement.classList.remove('dark');
             }
 
-            // Load lessons from LocalStorage
-            const stored = localStorage.getItem('math_lessons_data');
+            const stored = localStorage.getItem('math_lessons_data_v2');
             if (stored) {
                 try {
                     lessons = JSON.parse(stored);
                 } catch (e) {
-                    console.error('Error parsing stored lessons, fallback to sample data', e);
                     lessons = sampleLessons;
                 }
             } else {
@@ -419,7 +445,6 @@
             renderLessons();
         };
 
-        // Theme Toggle Function
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             const themeIcon = document.getElementById('themeIcon');
@@ -432,31 +457,24 @@
             }
         }
 
-        // Save State to LocalStorage
         function saveLessonsToStorage() {
-            localStorage.setItem('math_lessons_data', JSON.stringify(lessons));
+            localStorage.setItem('math_lessons_data_v2', JSON.stringify(lessons));
         }
 
-        // Filter Handlers
         function setFilter(category) {
             activeFilter = category;
-            
-            // Update UI tab styles
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
                 tab.classList.add('text-slate-600', 'dark:text-slate-300');
             });
-            
             const activeTab = document.getElementById(`filter-${category}`);
             if(activeTab) {
                 activeTab.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
                 activeTab.classList.remove('text-slate-600', 'dark:text-slate-300');
             }
-
             renderLessons();
         }
 
-        // Update Category Counts in Filter Tabs
         function updateCounts() {
             document.getElementById('count-All').innerText = lessons.length;
             document.getElementById('count-Đề thi').innerText = lessons.filter(l => l.category === 'Đề thi').length;
@@ -464,19 +482,18 @@
             document.getElementById('count-Lý thuyết').innerText = lessons.filter(l => l.category === 'Lý thuyết').length;
         }
 
-        // Render Lessons Cards Grid
         function renderLessons() {
             updateCounts();
             const grid = document.getElementById('lessonsGrid');
             const emptyState = document.getElementById('emptyState');
             const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
 
-            // Filter logic
             const filtered = lessons.filter(lesson => {
                 const matchesFilter = activeFilter === 'All' || lesson.category === activeFilter;
-                const matchesSearch = lesson.title.toLowerCase().includes(searchKeyword) || 
-                                      lesson.content.toLowerCase().includes(searchKeyword) ||
-                                      (lesson.solution && lesson.solution.toLowerCase().includes(searchKeyword));
+                const searchContent = lesson.category === 'Đề thi' 
+                    ? lesson.questions.map(q => q.content).join(' ')
+                    : (lesson.content || '');
+                const matchesSearch = lesson.title.toLowerCase().includes(searchKeyword) || searchContent.toLowerCase().includes(searchKeyword);
                 return matchesFilter && matchesSearch;
             });
 
@@ -490,54 +507,54 @@
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
 
-            // Render Card HTML
             grid.innerHTML = filtered.map(lesson => {
-                // Category badge colors
                 let badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
                 if (lesson.category === 'Đề thi') badgeClass = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300';
                 if (lesson.category === 'Lý thuyết') badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
 
                 const formattedDate = new Date(lesson.createdAt).toLocaleDateString('vi-VN');
+                const isExam = lesson.category === 'Đề thi';
+                const questionCount = isExam ? (lesson.questions ? lesson.questions.length : 0) : 1;
+                const previewText = isExam 
+                    ? (lesson.questions && lesson.questions[0] ? lesson.questions[0].content : 'Đề thi chưa có câu hỏi.')
+                    : lesson.content;
 
                 return `
                     <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/70 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
                         <div>
-                            <!-- Header Info -->
                             <div class="flex items-center justify-between mb-3">
                                 <span class="px-2.5 py-1 rounded-lg text-xs font-semibold ${badgeClass}">
-                                    ${lesson.category}
+                                    ${lesson.category} ${isExam ? `(${questionCount} câu)` : ''}
                                 </span>
                                 <span class="text-xs text-slate-400 font-medium">
                                     <i class="fa-regular fa-clock mr-1"></i>${formattedDate}
                                 </span>
                             </div>
 
-                            <!-- Title -->
                             <h3 class="text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-2 leading-snug">
                                 ${escapeHtml(lesson.title)}
                             </h3>
 
-                            <!-- Preview Content -->
                             <div class="text-sm text-slate-600 dark:text-slate-300 mb-4 line-clamp-4 leading-relaxed font-mono bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                                ${escapeHtml(lesson.content)}
+                                ${escapeHtml(previewText)}
                             </div>
                         </div>
 
-                        <!-- Card Footer & Actions -->
                         <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between mt-2">
-                            <!-- File Icon Badge if exists -->
-                            <div class="flex items-center text-xs text-slate-400">
-                                ${lesson.fileData ? `<span class="flex items-center text-blue-500 font-medium bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-md"><i class="fa-solid fa-paperclip mr-1"></i> Có file</span>` : ''}
+                            <div class="flex items-center text-xs text-slate-400 gap-1">
+                                <span class="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 font-mono text-[10px]">CASIO</span>
+                                <span class="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 font-mono text-[10px]">Tính nhanh</span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">Bản chất</span>
                             </div>
 
                             <div class="flex items-center space-x-1">
                                 <button onclick="openDetailModal('${lesson.id}')" class="px-3 py-1.5 text-xs font-semibold bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-lg transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-eye"></i> Xem bài
+                                    <i class="fa-solid fa-eye"></i> ${isExam ? 'Làm / Xem đề' : 'Xem bài'}
                                 </button>
                                 <button onclick="openEditModal('${lesson.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition" title="Chỉnh sửa">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button onclick="deleteLesson('${lesson.id}')" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition" title="Xóa bài học">
+                                <button onclick="deleteLesson('${lesson.id}')" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition" title="Xóa bài">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -546,19 +563,102 @@
                 `;
             }).join('');
 
-            // Trigger MathJax re-render for formulas inside cards
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise();
             }
         }
 
-        // Modal Open/Close Controls
+        // Toggle category mode in Form
+        function toggleFormCategoryMode() {
+            const category = document.getElementById('lessonCategory').value;
+            const singleSec = document.getElementById('singleQuestionSection');
+            const multiSec = document.getElementById('multiQuestionSection');
+
+            if (category === 'Đề thi') {
+                singleSec.classList.add('hidden');
+                multiSec.classList.remove('hidden');
+                if (currentEditingQuestions.length === 0) {
+                    currentEditingQuestions = [
+                        { id: 'q-' + Date.now(), content: '', solutions: { casio: '', shortcut: '', proof: '' } },
+                        { id: 'q-' + (Date.now() + 1), content: '', solutions: { casio: '', shortcut: '', proof: '' } }
+                    ];
+                }
+                renderFormQuestionList();
+            } else {
+                singleSec.classList.remove('hidden');
+                multiSec.classList.add('hidden');
+            }
+        }
+
+        // Render multi-question edit forms
+        function renderFormQuestionList() {
+            const container = document.getElementById('questionsContainer');
+            document.getElementById('questionCountInput').value = currentEditingQuestions.length;
+
+            container.innerHTML = currentEditingQuestions.map((q, idx) => `
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 relative">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/60 pb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Câu hỏi #${idx + 1}</span>
+                        ${currentEditingQuestions.length > 1 ? `
+                            <button type="button" onclick="removeQuestionItem(${idx})" class="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-trash-can"></i> Xóa câu này
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Đề bài / Câu hỏi <span class="text-red-500">*</span></label>
+                        <textarea oninput="currentEditingQuestions[${idx}].content = this.value" rows="2" placeholder="Nhập câu hỏi ${idx + 1}..." class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white focus:ring-1 focus:ring-blue-500 focus:outline-none">${escapeHtml(q.content)}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-amber-600 dark:text-amber-400 mb-1"><i class="fa-solid fa-calculator mr-1"></i> CASIO nhanh</label>
+                            <textarea oninput="currentEditingQuestions[${idx}].solutions.casio = this.value" rows="2" placeholder="Bấm máy..." class="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white focus:ring-1 focus:ring-amber-500 focus:outline-none">${escapeHtml(q.solutions ? q.solutions.casio : '')}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-purple-600 dark:text-purple-400 mb-1"><i class="fa-solid fa-bolt mr-1"></i> Tính nhanh</label>
+                            <textarea oninput="currentEditingQuestions[${idx}].solutions.shortcut = this.value" rows="2" placeholder="Công thức..." class="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white focus:ring-1 focus:ring-purple-500 focus:outline-none">${escapeHtml(q.solutions ? q.solutions.shortcut : '')}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mb-1"><i class="fa-solid fa-graduation-cap mr-1"></i> Bản chất (Tự luận)</label>
+                            <textarea oninput="currentEditingQuestions[${idx}].solutions.proof = this.value" rows="2" placeholder="Bản chất..." class="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white focus:ring-1 focus:ring-emerald-500 focus:outline-none">${escapeHtml(q.solutions ? q.solutions.proof : '')}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function adjustQuestionCount() {
+            const count = parseInt(document.getElementById('questionCountInput').value) || 1;
+            while (currentEditingQuestions.length < count) {
+                currentEditingQuestions.push({ id: 'q-' + Date.now() + Math.random(), content: '', solutions: { casio: '', shortcut: '', proof: '' } });
+            }
+            while (currentEditingQuestions.length > count) {
+                currentEditingQuestions.pop();
+            }
+            renderFormQuestionList();
+        }
+
+        function addQuestionItem() {
+            currentEditingQuestions.push({ id: 'q-' + Date.now() + Math.random(), content: '', solutions: { casio: '', shortcut: '', proof: '' } });
+            renderFormQuestionList();
+        }
+
+        function removeQuestionItem(idx) {
+            currentEditingQuestions.splice(idx, 1);
+            renderFormQuestionList();
+        }
+
+        // Modal Controls
         function openModal() {
             document.getElementById('lessonForm').reset();
             document.getElementById('lessonId').value = '';
-            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Tạo bài học mới</span>';
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Tạo bài học / Đề thi mới</span>';
             document.getElementById('saveBtnText').innerText = 'Lưu bài học';
+            currentEditingQuestions = [];
             clearFileSelection();
+            toggleFormCategoryMode();
 
             const modal = document.getElementById('lessonModal');
             modal.classList.remove('hidden');
@@ -584,22 +684,30 @@
             document.getElementById('lessonId').value = lesson.id;
             document.getElementById('lessonTitle').value = lesson.title;
             document.getElementById('lessonCategory').value = lesson.category;
-            document.getElementById('lessonContent').value = lesson.content;
-            document.getElementById('lessonSolution').value = lesson.solution || '';
+
+            if (lesson.category === 'Đề thi') {
+                currentEditingQuestions = lesson.questions ? JSON.parse(JSON.stringify(lesson.questions)) : [];
+            } else {
+                document.getElementById('lessonContent').value = lesson.content || '';
+                document.getElementById('solutionCasio').value = lesson.solutions ? lesson.solutions.casio : '';
+                document.getElementById('solutionShortcut').value = lesson.solutions ? lesson.solutions.shortcut : '';
+                document.getElementById('solutionProof').value = lesson.solutions ? lesson.solutions.proof : '';
+                
+                if (lesson.fileData) {
+                    document.getElementById('fileBase64').value = lesson.fileData;
+                    document.getElementById('fileName').value = lesson.fileName || 'File đính kèm';
+                    document.getElementById('fileType').value = lesson.fileType || '';
+                    document.getElementById('fileNameDisplay').innerText = lesson.fileName || 'File đã đính kèm';
+                    document.getElementById('removeFileBtn').classList.remove('hidden');
+                } else {
+                    clearFileSelection();
+                }
+            }
             
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i><span>Chỉnh sửa bài học</span>';
             document.getElementById('saveBtnText').innerText = 'Cập nhật';
 
-            // Handle file attached
-            if (lesson.fileData) {
-                document.getElementById('fileBase64').value = lesson.fileData;
-                document.getElementById('fileName').value = lesson.fileName || 'File đính kèm';
-                document.getElementById('fileType').value = lesson.fileType || '';
-                document.getElementById('fileNameDisplay').innerText = lesson.fileName || 'File đã đính kèm';
-                document.getElementById('removeFileBtn').classList.remove('hidden');
-            } else {
-                clearFileSelection();
-            }
+            toggleFormCategoryMode();
 
             const modal = document.getElementById('lessonModal');
             modal.classList.remove('hidden');
@@ -609,7 +717,6 @@
             }, 10);
         }
 
-        // File Upload Processing (Converts File to Data URL / Base64 for LocalStorage)
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -635,55 +742,55 @@
             document.getElementById('fileBase64').value = '';
             document.getElementById('fileName').value = '';
             document.getElementById('fileType').value = '';
-            document.getElementById('fileNameDisplay').innerText = 'Tải lên hình ảnh hoặc PDF đề bài...';
+            document.getElementById('fileNameDisplay').innerText = 'Tải lên hình ảnh hoặc PDF...';
             document.getElementById('removeFileBtn').classList.add('hidden');
         }
 
-        // Handle Add/Edit Form Submission
         function handleFormSubmit(e) {
             e.preventDefault();
 
             const id = document.getElementById('lessonId').value;
             const title = document.getElementById('lessonTitle').value.trim();
             const category = document.getElementById('lessonCategory').value;
-            const content = document.getElementById('lessonContent').value.trim();
-            const solution = document.getElementById('lessonSolution').value.trim();
-            const fileData = document.getElementById('fileBase64').value || null;
-            const fileName = document.getElementById('fileName').value || null;
-            const fileType = document.getElementById('fileType').value || null;
 
-            if (!title || !content) return;
+            if (!title) return;
+
+            let lessonObj = {
+                id: id || ('lesson-' + Date.now()),
+                title,
+                category,
+                createdAt: id ? (lessons.find(l => l.id === id)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (category === 'Đề thi') {
+                if (currentEditingQuestions.length === 0) {
+                    alert('Đề thi cần ít nhất 1 câu hỏi.');
+                    return;
+                }
+                lessonObj.questions = currentEditingQuestions;
+            } else {
+                const content = document.getElementById('lessonContent').value.trim();
+                if (!content) {
+                    alert('Vui lòng nhập nội dung bài học.');
+                    return;
+                }
+                lessonObj.content = content;
+                lessonObj.fileData = document.getElementById('fileBase64').value || null;
+                lessonObj.fileName = document.getElementById('fileName').value || null;
+                lessonObj.fileType = document.getElementById('fileType').value || null;
+                lessonObj.solutions = {
+                    casio: document.getElementById('solutionCasio').value.trim(),
+                    shortcut: document.getElementById('solutionShortcut').value.trim(),
+                    proof: document.getElementById('solutionProof').value.trim()
+                };
+            }
 
             if (id) {
-                // Update existing
                 const index = lessons.findIndex(l => l.id === id);
-                if (index !== -1) {
-                    lessons[index] = {
-                        ...lessons[index],
-                        title,
-                        category,
-                        content,
-                        solution,
-                        fileData,
-                        fileName,
-                        fileType,
-                        updatedAt: new Date().toISOString()
-                    };
-                }
+                if (index !== -1) lessons[index] = lessonObj;
             } else {
-                // Create new
-                const newLesson = {
-                    id: 'lesson-' + Date.now(),
-                    title,
-                    category,
-                    content,
-                    solution,
-                    fileData,
-                    fileName,
-                    fileType,
-                    createdAt: new Date().toISOString()
-                };
-                lessons.unshift(newLesson);
+                lessons.unshift(lessonObj);
             }
 
             saveLessonsToStorage();
@@ -691,7 +798,6 @@
             closeModal();
         }
 
-        // Delete Lesson
         function deleteLesson(id) {
             if (confirm('Bạn có chắc chắn muốn xóa bài học này không?')) {
                 lessons = lessons.filter(l => l.id !== id);
@@ -700,59 +806,33 @@
             }
         }
 
-        // Open Detailed View Modal
+        // VIEW & SOLUTION INTERACTION HANDLERS
         function openDetailModal(id) {
             const lesson = lessons.find(l => l.id === id);
             if (!lesson) return;
 
             document.getElementById('detailTitle').innerText = lesson.title;
             document.getElementById('detailBadge').innerText = lesson.category;
-            
-            // Format Math/LaTeX in content
-            document.getElementById('detailContent').innerHTML = formatTextWithMath(lesson.content);
-            
-            // Format Solution
-            const solutionContainer = document.getElementById('detailSolution');
-            if (lesson.solution) {
-                solutionContainer.innerHTML = formatTextWithMath(lesson.solution);
-            } else {
-                solutionContainer.innerHTML = '<span class="text-slate-400 italic">Chưa có lời giải chi tiết cho bài học này.</span>';
-            }
 
-            // Attached file preview
-            const fileContainer = document.getElementById('detailFileContainer');
-            const filePreview = document.getElementById('detailFilePreview');
-
-            if (lesson.fileData) {
-                fileContainer.classList.remove('hidden');
-                if (lesson.fileType && lesson.fileType.startsWith('image/')) {
-                    filePreview.innerHTML = `<img src="${lesson.fileData}" alt="Đính kèm" class="max-h-96 w-auto mx-auto rounded-lg shadow-sm">`;
-                } else if (lesson.fileType === 'application/pdf') {
-                    filePreview.innerHTML = `
-                        <div class="p-4 flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-file-pdf text-red-500 text-3xl"></i>
-                                <div>
-                                    <p class="font-medium text-sm text-slate-800 dark:text-slate-200">${escapeHtml(lesson.fileName)}</p>
-                                    <p class="text-xs text-slate-400">Tài liệu PDF</p>
-                                </div>
-                            </div>
-                            <a href="${lesson.fileData}" download="${lesson.fileName}" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1">
-                                <i class="fa-solid fa-download"></i> Tải về
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    filePreview.innerHTML = `
-                        <div class="p-4 flex items-center justify-between">
-                            <span class="text-sm text-slate-600 dark:text-slate-300 font-medium">${escapeHtml(lesson.fileName)}</span>
-                            <a href="${lesson.fileData}" download="${lesson.fileName}" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold">Tải xuống</a>
-                        </div>
-                    `;
-                }
+            const modalBody = document.getElementById('detailModalBody');
+            
+            if (lesson.category === 'Đề thi') {
+                // Multi-question rendering
+                modalBody.innerHTML = `
+                    <div class="space-y-8">
+                        ${lesson.questions.map((q, idx) => renderQuestionCardView(q, idx)).join('')}
+                    </div>
+                `;
             } else {
-                fileContainer.classList.add('hidden');
-                filePreview.innerHTML = '';
+                // Single question rendering
+                modalBody.innerHTML = renderQuestionCardView({
+                    id: 'single',
+                    content: lesson.content,
+                    fileData: lesson.fileData,
+                    fileName: lesson.fileName,
+                    fileType: lesson.fileType,
+                    solutions: lesson.solutions
+                }, 0, false);
             }
 
             const modal = document.getElementById('detailModal');
@@ -761,9 +841,106 @@
                 modal.classList.remove('opacity-0');
             }, 10);
 
-            // Trigger MathJax render for Modal content
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise();
+            }
+        }
+
+        // Helper to render interactive question card with 3 solution tabs
+        function renderQuestionCardView(q, index, isExam = true) {
+            const qKey = isExam ? `q_${index}` : 'single';
+            return `
+                <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-sm space-y-4">
+                    ${isExam ? `<h4 class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Câu hỏi #${index + 1}</h4>` : ''}
+                    
+                    <!-- Content -->
+                    <div class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed font-mono bg-slate-50 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 overflow-x-auto">
+                        ${formatTextWithMath(q.content)}
+                    </div>
+
+                    <!-- File attachment preview if exists -->
+                    ${q.fileData ? `
+                        <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 p-3">
+                            ${q.fileType && q.fileType.startsWith('image/') 
+                                ? `<img src="${q.fileData}" class="max-h-80 mx-auto rounded-lg shadow-sm">`
+                                : `<a href="${q.fileData}" download="${q.fileName}" class="text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-500 text-lg"></i> ${escapeHtml(q.fileName)} (Bấm để tải về)</a>`
+                            }
+                        </div>
+                    ` : ''}
+
+                    <!-- 3 Solution Method Buttons & Container -->
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-key text-yellow-500"></i> Xem phương pháp giải:
+                            </span>
+                            
+                            <!-- 3 Solution Toggle Tabs -->
+                            <div class="flex items-center space-x-1 sm:space-x-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                                <button onclick="switchSolutionTab('${qKey}', 'casio')" id="tabBtn_${qKey}_casio" class="sol-tab-btn text-xs font-medium px-3 py-1.5 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400">
+                                    <i class="fa-solid fa-calculator mr-1 text-amber-500"></i> Bấm CASIO
+                                </button>
+                                <button onclick="switchSolutionTab('${qKey}', 'shortcut')" id="tabBtn_${qKey}_shortcut" class="sol-tab-btn text-xs font-medium px-3 py-1.5 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400">
+                                    <i class="fa-solid fa-bolt mr-1 text-purple-500"></i> Tính nhanh
+                                </button>
+                                <button onclick="switchSolutionTab('${qKey}', 'proof')" id="tabBtn_${qKey}_proof" class="sol-tab-btn text-xs font-medium px-3 py-1.5 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                                    <i class="fa-solid fa-graduation-cap mr-1 text-emerald-500"></i> Bản chất
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Solution Panels -->
+                        <div id="solPanel_${qKey}_casio" class="hidden bg-amber-50/60 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-200/60 dark:border-amber-900/40 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-mono">
+                            <div class="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2 flex items-center gap-1"><i class="fa-solid fa-calculator"></i> HƯỚNG DẪN BẤM MÁY TÍNH CASIO:</div>
+                            ${q.solutions && q.solutions.casio ? formatTextWithMath(q.solutions.casio) : '<span class="text-slate-400 italic">Chưa có lời giải CASIO cho câu hỏi này.</span>'}
+                        </div>
+
+                        <div id="solPanel_${qKey}_shortcut" class="hidden bg-purple-50/60 dark:bg-purple-950/20 p-4 rounded-xl border border-purple-200/60 dark:border-purple-900/40 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-mono">
+                            <div class="text-xs font-bold text-purple-700 dark:text-purple-300 mb-2 flex items-center gap-1"><i class="fa-solid fa-bolt"></i> CÔNG THỨC & MẸO TÍNH NHANH:</div>
+                            ${q.solutions && q.solutions.shortcut ? formatTextWithMath(q.solutions.shortcut) : '<span class="text-slate-400 italic">Chưa có công thức tính nhanh cho câu hỏi này.</span>'}
+                        </div>
+
+                        <div id="solPanel_${qKey}_proof" class="hidden bg-emerald-50/60 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-200/60 dark:border-emerald-900/40 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-mono">
+                            <div class="text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-2 flex items-center gap-1"><i class="fa-solid fa-graduation-cap"></i> TRÌNH BÀY LỜI GIẢI TỰ LUẬN BẢN CHẤT:</div>
+                            ${q.solutions && q.solutions.proof ? formatTextWithMath(q.solutions.proof) : '<span class="text-slate-400 italic">Chưa có lời giải tự luận cho câu hỏi này.</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Switch Solution Tabs
+        function switchSolutionTab(qKey, method) {
+            const methods = ['casio', 'shortcut', 'proof'];
+            const targetPanel = document.getElementById(`solPanel_${qKey}_${method}`);
+            const targetBtn = document.getElementById(`tabBtn_${qKey}_${method}`);
+
+            const isAlreadyActive = targetPanel && !targetPanel.classList.contains('hidden');
+
+            // Hide all 3 panels for this question first
+            methods.forEach(m => {
+                const panel = document.getElementById(`solPanel_${qKey}_${m}`);
+                const btn = document.getElementById(`tabBtn_${qKey}_${m}`);
+                if (panel) panel.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'font-bold', 'text-amber-600', 'text-purple-600', 'text-emerald-600');
+                    btn.classList.add('text-slate-600', 'dark:text-slate-300');
+                }
+            });
+
+            // Toggle show if clicking an inactive tab
+            if (!isAlreadyActive && targetPanel && targetBtn) {
+                targetPanel.classList.remove('hidden');
+                targetBtn.classList.add('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'font-bold');
+                
+                if (method === 'casio') targetBtn.classList.add('text-amber-600');
+                if (method === 'shortcut') targetBtn.classList.add('text-purple-600');
+                if (method === 'proof') targetBtn.classList.add('text-emerald-600');
+
+                // Re-render MathJax formula in revealed panel
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([targetPanel]);
+                }
             }
         }
 
@@ -775,7 +952,6 @@
             }, 200);
         }
 
-        // Help Modal Controls
         function openLaTeXHelpModal() {
             const modal = document.getElementById('latexHelpModal');
             modal.classList.remove('hidden');
@@ -795,14 +971,12 @@
             }, 200);
         }
 
-        // Utility: Convert text linebreaks to <br> while keeping HTML safe
         function formatTextWithMath(text) {
             if (!text) return '';
             const escaped = escapeHtml(text);
             return escaped.replace(/\n/g, '<br>');
         }
 
-        // Utility: HTML Escape guard
         function escapeHtml(str) {
             if (!str) return '';
             return str
